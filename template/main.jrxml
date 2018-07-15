@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Main report to display fields of an ArchiMate Model -->
+<!-- The Data Source is of type com.archimatetool.jasperreports.data.ArchimateModelDataSource -->
+<!-- The Element is of type com.archimatetool.model.IArchimateModel accessed by field "this" -->
+<!-- Example to get purpose value - $F{this}.getPurpose() -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+	name="main_report" pageWidth="595" pageHeight="842" columnWidth="515"
+	leftMargin="40" rightMargin="40" topMargin="50" bottomMargin="50">
+	
+	<style name="Sans_Normal" isDefault="true" fontSize="12" fontName="DejaVu Sans"/>
+    <style name="Sans_Bold" fontSize="12" fontName="DejaVu Sans" isBold="true"/>
+	
+	<parameter name="REPORT_TITLE" class="java.lang.String"/>
+    
+    <!-- Declare the names of sub-reports referenced in this report -->
+    <parameter name="view_report" class="net.sf.jasperreports.engine.JasperReport"/>
+    <parameter name="properties_report" class="net.sf.jasperreports.engine.JasperReport"/>
+    <parameter name="diagram_object_report" class="net.sf.jasperreports.engine.JasperReport"/>
+    <parameter name="elements_report" class="net.sf.jasperreports.engine.JasperReport"/>
+
+    <parameter name="DATE_NOW">
+        <defaultValueExpression>(new java.text.SimpleDateFormat("d MMM yyyy HH:mm:ss")).format(new java.util.Date())</defaultValueExpression>
+    </parameter>
+    
+    <field name="this" class="com.archimatetool.model.IArchimateModel"/>
+    <field name="name" class="java.lang.String"/>
+    <field name="purpose" class="java.lang.String"/>
+    
+	<!-- Title of the Report -->
+	<title>
+		<band height="380">
+			<image hAlign="Center" vAlign="Top">
+				<reportElement x="90" y="150" width="343 " height="100"/>
+                                <!--TODO 1: Point to your logo. Sample /home/toto/logo.png for Linux and C:\\temp\\logo.png for Windows-->
+                                <imageExpression class="java.lang.String"><![CDATA["/path/to/your/logo.png"]]></imageExpression>
+			</image>			
+			<textField bookmarkLevel="1">
+				<reportElement x="0" y="300" width="515" height="30"/>
+				<textElement textAlignment="Center">
+					<font size="22" />
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_TITLE}]]></textFieldExpression>
+			</textField>
+
+            <textField>
+                <reportElement x="0" y="332" width="515" height="20"/>
+				<textElement textAlignment="Center" />
+                <textFieldExpression>$P{DATE_NOW}</textFieldExpression>
+            </textField>
+            <break>
+                <reportElement x="0" y="334" width="1" height="1"></reportElement>
+            </break>            
+
+		</band>
+	</title>
+
+	<pageHeader>
+		<band height="40">
+			<textField>
+				<reportElement x="0" y="0" width="515" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="9" />
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_TITLE}]]></textFieldExpression>
+			</textField>
+			<line>
+                <reportElement width="515" y="20" x="0" height="1"/>
+            </line>
+
+		</band>
+	</pageHeader>
+	
+	
+    <detail>
+        <!-- Model Name Text -->
+        <band height="33">
+            <printWhenExpression>$F{name} != null</printWhenExpression>
+            <staticText>
+                <reportElement x="0" y="0" width="100" height="15" style="Sans_Bold"/>
+                <text>Model Name</text>
+            </staticText>
+            <textField bookmarkLevel="1">
+                <reportElement x="0" y="18" width="515" height="15"/>
+                <textFieldExpression>$F{name}</textFieldExpression>
+				<anchorNameExpression>$F{name}</anchorNameExpression>
+            </textField>
+        </band>
+        
+        <!-- Model Purpose Text -->
+        <band height="60">
+            <printWhenExpression>$F{purpose} != null</printWhenExpression>
+            <staticText>
+                <reportElement x="0" y="0" width="100" height="35" style="Sans_Bold"/>
+                <textElement verticalAlignment="Bottom"></textElement>
+                <text>Purpose</text>
+            </staticText>
+            <textField isStretchWithOverflow="true" bookmarkLevel="2">
+                <reportElement x="0" y="38" width="515" height="18"/>
+                <textFieldExpression>$F{purpose}</textFieldExpression>
+            </textField>
+        </band>
+        
+        <!-- Model Properties Sub-Report -->
+        <band height="25" splitType="Prevent">
+            <subreport>
+                <reportElement isPrintRepeatedValues="false" x="0" y="0" width="515" height="20" isRemoveLineWhenBlank="true"/>
+                <dataSourceExpression>((com.archimatetool.jasperreports.data.ArchimateModelDataSource)$P{REPORT_DATA_SOURCE}).getPropertiesDataSource()</dataSourceExpression>
+                <subreportExpression class="net.sf.jasperreports.engine.JasperReport">$P{properties_report}</subreportExpression>
+            </subreport>
+        </band>
+        
+        <!-- Model View Sub-Report -->
+        <band height="50">
+            <subreport>
+                <reportElement isPrintRepeatedValues="false" x="0" y="0" width="515" height="50" isRemoveLineWhenBlank="true"/>
+                <subreportParameter name="properties_report">
+                    <subreportParameterExpression>$P{properties_report}</subreportParameterExpression>
+                </subreportParameter>
+                <subreportParameter name="diagram_object_report">
+                    <subreportParameterExpression>$P{diagram_object_report}</subreportParameterExpression>
+                </subreportParameter>
+                <dataSourceExpression>((com.archimatetool.jasperreports.data.ArchimateModelDataSource)$P{REPORT_DATA_SOURCE}).getViewsDataSource()</dataSourceExpression>
+                <subreportExpression class="net.sf.jasperreports.engine.JasperReport">$P{view_report}</subreportExpression>
+            </subreport>
+        </band>
+		
+    </detail>
+
+    <pageFooter>
+      <band height="40">
+		<line>
+            <reportElement width="515" y="20" x="0" height="1"/>
+        </line>
+        <textField>
+            <reportElement x="0" y="25" width="515" height="15"/>
+            <textElement textAlignment="Center">
+				<font size="9" />
+			</textElement>
+            <!--TODO 2: Put the name of your organization-->
+            <textFieldExpression>"Your organization - " + $P{DATE_NOW} + " - Page " + $V{PAGE_NUMBER}</textFieldExpression>
+         </textField>
+      </band>
+   </pageFooter>
+	
+</jasperReport>
